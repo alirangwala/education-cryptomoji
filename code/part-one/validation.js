@@ -12,7 +12,16 @@ const signing = require('./signing');
  */
 const isValidTransaction = transaction => {
   // Enter your solution here
+  // transaction amount negative
+  // signing.verify(transaction.recipient, transaction.amount, transaction.signature) &&
+  if (transaction.amount && transaction.amount >= 0) {
+    return true;
+  }
+  return false;
 
+  // signing.signed === false for improper signing and modified
+
+  //
 };
 
 /**

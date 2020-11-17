@@ -6,31 +6,31 @@ const signing = require('../signing');
 const { Transaction, Block, Blockchain } = require('../blockchain');
 
 
-describe('Blockchain module', function() {
+describe('Blockchain module', function () {
 
-  describe('Transaction', function() {
+  describe('Transaction', function () {
     let signer = null;
     let recipient = null;
     let amount = null;
     let transaction = null;
 
-    beforeEach(function() {
+    beforeEach(function () {
       signer = signing.createPrivateKey();
       recipient = signing.getPublicKey(signing.createPrivateKey());
       amount = Math.ceil(Math.random() * 100);
       transaction = new Transaction(signer, recipient, amount);
     });
 
-    it('should include signer public key as source', function() {
+    it('should include signer public key as source', function () {
       expect(transaction.source).to.equal(signing.getPublicKey(signer));
     });
 
-    it('should include the passed recipient and amount', function() {
+    it('should include the passed recipient and amount', function () {
       expect(transaction.recipient).to.equal(recipient);
       expect(transaction.amount).to.equal(amount);
     });
 
-    it('should include a valid signature', function() {
+    it('should include a valid signature', function () {
       const { source, signature } = transaction;
       const signedMessage = source + recipient + amount;
 
@@ -38,37 +38,37 @@ describe('Blockchain module', function() {
     });
   });
 
-  describe('Block', function() {
+  describe('Block', function () {
     let previousHash = null;
     let transactions = null;
     let block = null;
 
-    beforeEach(function() {
+    beforeEach(function () {
       const signer = signing.createPrivateKey();
       const recipient = signing.getPublicKey(signing.createPrivateKey());
       const amount = Math.ceil(Math.random() * 100);
 
-      transactions = [ new Transaction(signer, recipient, amount) ];
+      transactions = [new Transaction(signer, recipient, amount)];
       previousHash = randomBytes(64).toString('hex');
 
       block = new Block(transactions, previousHash);
     });
 
-    it('should include the passed transactions', function() {
+    it('should include the passed transactions', function () {
       expect(block.transactions).to.deep.equal(transactions);
     });
 
-    it('should include the passed previous hash', function() {
+    it('should include the passed previous hash', function () {
       expect(block.previousHash).to.equal(previousHash);
     });
 
-    it('should have a method that calculates a hash with a nonce', function() {
+    it('should have a method that calculates a hash with a nonce', function () {
       block.calculateHash(0);
       expect(block.hash).to.be.a('string').and.not.be.empty;
       expect(block.nonce).to.equal(0);
     });
 
-    it('should calculate the same hash with the same nonce', function() {
+    it('should calculate the same hash with the same nonce', function () {
       block.calculateHash(0);
       const originalHash = block.hash;
       block.calculateHash(0);
@@ -76,7 +76,7 @@ describe('Blockchain module', function() {
       expect(block.hash).to.equal(originalHash);
     });
 
-    it('should have different hashes for different nonces', function() {
+    it('should have different hashes for different nonces', function () {
       block.calculateHash(0);
       const originalHash = block.hash;
       block.calculateHash(1);
@@ -84,7 +84,7 @@ describe('Blockchain module', function() {
       expect(originalHash).to.not.equal(block.hash);
     });
 
-    it('should have different hashes for different transactions', function() {
+    it('should have different hashes for different transactions', function () {
       block.calculateHash(0);
       const originalHash = block.hash;
 
@@ -98,7 +98,7 @@ describe('Blockchain module', function() {
       expect(block.hash).to.not.equal(originalHash);
     });
 
-    it('should have different hashes for different prev hashes', function() {
+    it('should have different hashes for different prev hashes', function () {
       block.calculateHash(0);
       const originalHash = block.hash;
 
@@ -109,14 +109,14 @@ describe('Blockchain module', function() {
     });
   });
 
-  describe('Blockchain', function() {
+  describe('Blockchain', function () {
     let blockchain = null;
 
-    beforeEach(function() {
+    beforeEach(function () {
       blockchain = new Blockchain();
     });
 
-    it('should have a blocks array with a genesis block', function() {
+    it('should have a blocks array with a genesis block', function () {
       expect(blockchain.blocks).to.exist.and.be.an('array');
 
       const genesis = blockchain.blocks[0];
@@ -124,11 +124,11 @@ describe('Blockchain module', function() {
       expect(genesis.transactions).to.be.an('array').and.be.empty;
     });
 
-    it('should have a method to get the latest block', function() {
+    it('should have a method to get the latest block', function () {
       expect(blockchain.getHeadBlock()).to.deep.equal(blockchain.blocks[0]);
     });
 
-    it('should be able to build a new block from transactions', function() {
+    it('should be able to build a new block from transactions', function () {
       const signer = signing.createPrivateKey();
       const recipient = signing.getPublicKey(signing.createPrivateKey());
       const transaction = new Transaction(signer, recipient, 100);
@@ -142,7 +142,7 @@ describe('Blockchain module', function() {
       expect(head.previousHash).to.equal(genesis.hash);
     });
 
-    it('should be able to get balance for an address', function() {
+    it('should be able to get balance for an address', function () {
       const signer = signing.createPrivateKey();
       const recipient = signing.getPublicKey(signing.createPrivateKey());
       const transaction = new Transaction(signer, recipient, 100);
@@ -153,7 +153,7 @@ describe('Blockchain module', function() {
         .to.equal(-100);
     });
 
-    it('should return a balance of zero for an unknown address', function() {
+    it('should return a balance of zero for an unknown address', function () {
       const unknown = signing.getPublicKey(signing.createPrivateKey());
       expect(blockchain.getBalance(unknown)).to.equal(0);
     });
